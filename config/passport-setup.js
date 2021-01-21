@@ -18,8 +18,9 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 //local Statigy config
-passport.use(new localStrategy(
-	function(username, password, done) {
+passport.use(new localStrategy({
+	usernameField: 'email'
+}, function(username, password, done) {
 		//find out if username and password match
 		User.find({}, (err, users) => {
 			if(err){

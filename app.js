@@ -10,8 +10,7 @@ var bodyParser = require("body-parser"),
 	mongoose = require("mongoose"),
 	passport = require("passport"),
 	User = require("./models/users"),
-	expressSession = require("express-session"),
-	flash = require('connect-flash');
+	expressSession = require("express-session")
 
 //passport setup
 app.use(expressSession({
@@ -19,7 +18,6 @@ app.use(expressSession({
 	resave: false,
 	saveUninitialized: false
 }));
-app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 passport.serializeUser(function(user, done) {
@@ -33,11 +31,15 @@ passport.deserializeUser(function(user, done) {
 app.use((req, res, next) => {
 	//populate req.app.loacls with app info
 	req.app.locals.currentUser = req.user;
-	req.app.locals.message = req.flash('authentication');
-	req.app.locals.err = req.flash('error');
+
+	res.setHeader('Access-Control-Allow-Origin', "http://localhost:3000");
+	res.setHeader('Access-Control-Allow-Credentials', true);
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 app.use(express.static(__dirname + "/public"));
 
 //connecting mongoose
@@ -46,7 +48,21 @@ mongoose.connect(process.env.DBURL, {
 	useCreateIndex: true,
 	useUnifiedTopology: true
 }).then(() => {
-	console.log("MongoDB has concected!")
+	console.log("MongoDB has concected!");
+	//Remove all users
+	User.remove({}, (err) => {
+		if(err){
+			console.log("Something went wrong");
+			console.log(err.message);
+		}
+		else{
+			console.log("all users have been deleted");
+			User.find({}, (err, users) => {
+				console.log(users);
+			});
+		}
+	});
+
 }).catch((err) => {
 	console.log("Something went wrong");
 	console.log(err.message);

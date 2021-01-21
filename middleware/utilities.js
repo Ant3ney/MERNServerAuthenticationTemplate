@@ -4,32 +4,43 @@ var express = require("express");
 var app = express();
 
 //create new local user
-middle.assembleLocalUser = (username, name, hash) => {
+middle.assembleLocalUser = (email, name, hash) => {
 	var newUser = {
-		username: username,
+		username: name,
 		name: name,
 		id: null,
 		password: hash,
 		type: "local",
-		email: null
+		email: email
 	}
 	
 	return newUser;
 }
 
 //loop though users and find matching local username
-middle.findIndexOfLocalUser = (users, username) => {
+middle.findIndexOfLocalUser = (users, email) => {
 	var correctUserIndex = -1;
 	
 	//loop through and find index of user with correct username
 	for(var i = 0; i < users.length; i++){
-		if(users[i].type === "local" && users[i].username === username){
+		if(users[i].type === "local" && users[i].email === email){
 			correctUserIndex = i;
 			break;
 		}
 	}
 	
 	return correctUserIndex;
+}
+
+middle.isLoggedIn = (req, res, next) => {
+	if(req.isAuthenticated())
+	{
+		return next();
+	}
+	else{
+		res.status(401);
+	}
+
 }
 
 //loop through users and find one with matching google id
